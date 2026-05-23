@@ -1,26 +1,26 @@
 # University Research Laboratory
 
-نظام لإدارة ميزانية مختبر/فريق بحثي، يتكون من واجهة أمامية بـ Next.js وخادم خلفي بـ Express وPrisma مع PostgreSQL.
+Budget management system for a research lab or team, built with a Next.js frontend and an Express backend using Prisma and PostgreSQL.
 
-مستودع المشروع على GitHub: https://github.com/ayadseghairi/university-research-laboratory
+Project repository on GitHub: https://github.com/ayadseghairi/university-research-laboratory
 
-## المتطلبات الأساسية
+## Prerequisites
 
-- Node.js 18 أو أحدث
+- Node.js 18 or newer
 - npm
-- PostgreSQL 14 أو أحدث
-- Git لتنزيل المشروع
+- PostgreSQL 14 or newer
+- Git for cloning the project
 
-## تنزيل المشروع
+## Clone the Project
 
 ```bash
 git clone https://github.com/ayadseghairi/university-research-laboratory.git
 cd university-research-laboratory
 ```
 
-## تثبيت المتطلبات
+## Install Dependencies
 
-ثبّت الحزم في كل جزء من المشروع على حدة:
+Install the dependencies for each part of the project separately:
 
 ```bash
 cd backend
@@ -30,13 +30,13 @@ cd ../frontend
 npm install
 ```
 
-## إعداد قاعدة البيانات
+## Database Setup
 
-1. أنشئ قاعدة بيانات PostgreSQL جديدة، مثل `labbudget_db`.
-2. أنشئ مستخدمًا وصلاحيات مناسبة إذا كنت تستخدم قاعدة بيانات محلية أو خادمًا منفصلًا.
-3. أنشئ ملف البيئة `backend/.env` وضع فيه القيم المناسبة.
+1. Create a new PostgreSQL database, such as `labbudget_db`.
+2. Create a user and assign the appropriate permissions if you are using a local database or a separate server.
+3. Create the `backend/.env` file and add the required values.
 
-مثال عملي:
+Example:
 
 ```env
 DATABASE_URL="postgresql://labbudget_user:your_secure_password@localhost:5432/labbudget_db"
@@ -52,56 +52,56 @@ UPLOAD_PATH=./uploads
 CORS_ORIGIN=http://localhost:3000
 ```
 
-إذا أردت ربط الواجهة الأمامية بعنوان API مختلف في بيئة الإنتاج، اضبط:
+If you want to point the frontend to a different API URL in production, set:
 
 ```env
 NEXT_PUBLIC_API_URL=https://your-api-domain.com/api
 ```
 
-## تشغيل قاعدة البيانات
+## Database Migration
 
-هذا المشروع يعتمد على PostgreSQL فقط. بعد تجهيز القاعدة وملف `.env`، طبّق الترحيلات من مجلد `backend`:
+This project uses PostgreSQL only. After setting up the database and `.env` file, run the migrations from the `backend` folder:
 
 ```bash
 cd backend
 npx prisma migrate dev
 ```
 
-إذا أردت فتح Prisma Studio:
+To open Prisma Studio:
 
 ```bash
 npx prisma studio
 ```
 
-ولإعادة ضبط قاعدة البيانات في بيئة التطوير:
+To reset the database in development:
 
 ```bash
 npx prisma migrate reset
 ```
 
-## التشغيل في بيئة التطوير
+## Development
 
-شغّل الخادم الخلفي أولًا:
+Start the backend first:
 
 ```bash
 cd backend
 npm run dev
 ```
 
-ثم شغّل الواجهة الأمامية في نافذة طرفية ثانية:
+Then start the frontend in a second terminal:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-- الخادم الخلفي يعمل افتراضيًا على `http://localhost:5000`
-- الواجهة الأمامية تعمل افتراضيًا على `http://localhost:3000`
-- فحص الصحة متاح عبر `GET /api/health`
+- The backend runs by default at `http://localhost:5000`
+- The frontend runs by default at `http://localhost:3000`
+- Health checks are available at `GET /api/health`
 
-## البناء والتشغيل في الإنتاج
+## Production Build and Run
 
-### بناء وتشغيل الخلفية
+### Build and run the backend
 
 ```bash
 cd backend
@@ -109,7 +109,7 @@ npm run build
 npm start
 ```
 
-### بناء وتشغيل الواجهة الأمامية
+### Build and run the frontend
 
 ```bash
 cd frontend
@@ -117,32 +117,32 @@ npm run build
 npm start
 ```
 
-## أوامر مفيدة
+## Useful Commands
 
 ### Backend
 
-- `npm run dev` لتشغيل الخادم بوضع التطوير
-- `npm run build` لبناء TypeScript
-- `npm start` لتشغيل النسخة المبنية
-- `npm run db:migrate` لتطبيق الترحيلات
-- `npm run db:seed` لتشغيل ملف seed
-- `npm run db:studio` لفتح Prisma Studio
-- `npm run db:reset` لإعادة ضبط قاعدة البيانات
+- `npm run dev` to run the server in development mode
+- `npm run build` to build TypeScript
+- `npm start` to run the built version
+- `npm run db:migrate` to apply migrations
+- `npm run db:seed` to run the seed file
+- `npm run db:studio` to open Prisma Studio
+- `npm run db:reset` to reset the database
 
 ### Frontend
 
-- `npm run dev` لتشغيل الواجهة بوضع التطوير
-- `npm run build` لبناء تطبيق Next.js
-- `npm start` لتشغيل النسخة المبنية
+- `npm run dev` to run the frontend in development mode
+- `npm run build` to build the Next.js app
+- `npm start` to run the built version
 
-## بنية المشروع
+## Project Structure
 
-- `backend/` يحتوي على API، Prisma، وقاعدة البيانات
-- `frontend/` يحتوي على واجهة Next.js
-- `backend/uploads/` لتخزين الملفات المرفوعة
+- `backend/` contains the API, Prisma, and database logic
+- `frontend/` contains the Next.js interface
+- `backend/uploads/` stores uploaded files
 
-## ملاحظات تشغيل
+## Runtime Notes
 
-- تأكد من أن PostgreSQL يعمل قبل تشغيل الترحيلات أو الخادم الخلفي.
-- تأكد من تطابق قيمة `CORS_ORIGIN` مع عنوان الواجهة الأمامية.
-- إذا استخدمت اسم مضيف أو منفذ مختلفين، حدّث `.env` و`NEXT_PUBLIC_API_URL` وفقًا لذلك.
+- Make sure PostgreSQL is running before starting migrations or the backend server.
+- Make sure `CORS_ORIGIN` matches the frontend URL.
+- If you use a different host or port, update `.env` and `NEXT_PUBLIC_API_URL` accordingly.
