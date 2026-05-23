@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DIRECTOR        // مدير المختبر
+  TEAM_LEADER     // رئيس فريق بحث
+  RESEARCHER      // باحث
+}
+
+enum Language {
+  AR              // العربية
+  FR              // الفرنسية
+  EN              // الإنجليزية
+}
+
+enum ExpenseStatus {
+  PENDING         // في الانتظار
+  APPROVED        // موافق عليه
+  REJECTED        // مرفوض
+  PAID            // تم الدفع
+}
+
+enum ExpenseCategory {
+  RESEARCH_DEVELOPMENT    // بحث وتطوير (ملتقيات، تنقلات) — الباب 34.22
+  LAB_MATERIALS           // مواد ومستهلكات مخبرية — الباب 35.22
+  SCIENTIFIC_PUBLISHING   // اشتراكات ونشر علمي — الباب 36.22
+  EQUIPMENT               // اقتناء معدات علمية — الباب 37.22
+  FIELD_RESEARCH          // بحث ميداني وتنقلات — الباب 38.22
+  RESEARCHER_REWARDS      // مكافآت الباحثين — الباب 40.22
+}
+
+model User {
+  id            String    @id @default(cuid())
+  fullName      String
+  email         String    @unique
+  password      String
+  role          Role
+  language      Language  @default(AR)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  teamLed       Team?     @relation("TeamLeader")
+  teamMember    TeamMember?
+  expenses      Expense[]
+  approvals     Expense[] @relation("ApprovedBy")
+
+  @@map("users")
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  leaderId    String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  leader      User      @relation("TeamLeader", fields: [leaderId], references: [id])
+  members     TeamMember[]
+  allocations BudgetAllocation[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  teamId    String
+  joinedAt  DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id])
+
+  @@map("team_members")
+}
+
+model AnnualBudget {
+  id              String    @id @default(cuid())
+  fiscalYear      Int       @unique   // e.g. 2026
+  totalAmount     Decimal   @db.Decimal(15, 2)
+  isDistributed   Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  allocations     BudgetAllocation[]
+  categoryBudgets CategoryBudget[]
+
+  @@map("annual_budgets")
+}
+
+model CategoryBudget {
+  id            String          @id @default(cuid())
+  budgetId      String
+  category      ExpenseCategory
+  allocatedAmount Decimal       @db.Decimal(15, 2)
+  spentAmount   Decimal         @db.Decimal(15, 2) @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  budget        AnnualBudget    @relation(fields: [budgetId], references: [id])
+
+  @@unique([budgetId, category])
+  @@map("category_budgets")
+}
+
+model BudgetAllocation {
+  id              String        @id @default(cuid())
+  budgetId        String
+  teamId          String
+  allocatedAmount Decimal       @db.Decimal(15, 2)
+  spentAmount     Decimal       @db.Decimal(15, 2) @default(0)
+  approvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  budget          AnnualBudget  @relation(fields: [budgetId], references: [id])
+  team            Team          @relation(fields: [teamId], references: [id])
+  expenses        Expense[]
+
+  @@unique([budgetId, teamId])
+  @@map("budget_allocations")
+}
+
+model Expense {
+  id              String          @id @default(cuid())
+  title           String
+  description     String?
+  amount          Decimal         @db.Decimal(15, 2)
+  category        ExpenseCategory
+  status          ExpenseStatus   @default(PENDING)
+  receiptUrl      String?         // uploaded receipt file path
+  rejectionReason String?
+  requestedById   String
+  approvedById    String?
+  allocationId    String
+  expenseDate     DateTime        @default(now())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  requestedBy     User            @relation(fields: [requestedById], references: [id])
+  approvedBy      User?           @relation("ApprovedBy", fields: [approvedById], references: [id])
+  allocation      BudgetAllocation @relation(fields: [allocationId], references: [id])
+
+  @@map("expenses")
+}
